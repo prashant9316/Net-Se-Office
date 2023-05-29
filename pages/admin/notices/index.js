@@ -6,6 +6,7 @@ import Link from 'next/link';
 import styles from '@/styles/PageTitle.module.css';
 import axios from 'axios';
 import AdminProtection from 'api/admin';
+import server_url from 'api/server';
 
 export default function Testimonials() {
     const [notices, setNotices] = React.useState([]);
@@ -13,7 +14,7 @@ export default function Testimonials() {
     React.useEffect(() => {
         const fetchData = async () => {
           try {
-            const response = await axios.get('http://localhost:4000/notices'); // Replace with your API endpoint
+            const response = await axios.get(`${server_url}notices`); // Replace with your API endpoint
             setNotices(response.data);
           } catch (error) {
             console.error('Failed to fetch data:', error);

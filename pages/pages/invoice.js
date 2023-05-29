@@ -4,6 +4,7 @@ import styles from '@/styles/PageTitle.module.css'
 import InvoiceLists from '@/components/Pages/Invoice/InvoiceLists';
 import axios from 'axios';
 import PrivateProtection from 'api/private';
+import server_url from 'api/server';
 
 export default function Invoice() {
   const [salaryData, setSalaryData] = React.useState([]);
@@ -12,7 +13,7 @@ export default function Invoice() {
     const fetchSalary = async() => {
       try {
         const token = localStorage.getItem('token')
-        const response = await axios.get('http://localhost:4000/salarySlips/employee', {headers: {Authorization: `Bearer ${token}`}})
+        const response = await axios.get(`${server_url}salarySlips/employee`, {headers: {Authorization: `Bearer ${token}`}})
         console.log(response.data)
         setSalaryData(response.data)
       } catch (error) {

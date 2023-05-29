@@ -45,26 +45,23 @@ export default function ProjectManagement() {
         </Grid>
       </Grid>
 
-      <Grid
+      {/* <Grid
         container
         rowSpacing={1}
         columnSpacing={{ xs: 1, sm: 1, md: 1, lg: 1, xl: 2 }}
       >
         <Grid item xs={12} md={12} lg={12} xl={4}>
-          {/* TotalUsers */}
           <TotalUsers />
         </Grid>
 
         <Grid item xs={12} md={12} lg={12} xl={4}>
-          {/* CompletedTasks */}
           <CompletedTasks />
         </Grid>
 
         <Grid item xs={12} md={12} lg={12} xl={4}>
-          {/* TasksPerformance */}
           <TasksPerformance />
         </Grid>
-      </Grid>
+      </Grid> */}
 
       <Grid
         container
@@ -73,18 +70,18 @@ export default function ProjectManagement() {
       >
         <Grid item xs={12} md={12} lg={12} xl={8}>
           {/* IssuesSummary */}
-          <IssuesSummary />
+          {/* <IssuesSummary /> */}
 
           {/* AllProjects */}
-          <AllProjects />
+          {/* <AllProjects /> */}
         </Grid>
 
         <Grid item xs={12} md={12} lg={12} xl={4}>
           {/* TeamMembers */}
-          <TeamMembers />
+          {/* <TeamMembers /> */}
 
           {/* ActivityTimeline */}
-          <ActivityTimeline />
+          {/* <ActivityTimeline /> */}
         </Grid>
       </Grid>
       </AdminProtection>

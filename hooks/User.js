@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import server_url from 'api/server';
 
 const UserContext = createContext(null);
 
@@ -11,7 +12,7 @@ export const UserProvider = ({ children }) => {
   const login = async(formData) => {
     
     try {
-        const response = await axios.post('http://localhost:4000/login', formData)
+        const response = await axios.post(`${server_url}login`, formData)
         console.log(response.data)
         if(response.data.success == true){
           const token = response.data.token;
@@ -44,7 +45,7 @@ export const UserProvider = ({ children }) => {
 
   const fetchUser = async (token) => {
     try {
-      const response = await axios.get('http://localhost:4000/me', {
+      const response = await axios.get(`${server_url}me`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

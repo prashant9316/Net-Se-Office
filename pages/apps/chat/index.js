@@ -14,6 +14,7 @@ import ChatBox from "@/components/Apps/Chat/ChatBox";
 import ChatBoxTwo from "@/components/Apps/Chat/ChatBoxTwo";
 import ChatBoxThree from "@/components/Apps/Chat/ChatBoxThree";
 import axios from "axios";
+import server_url from "api/server";
 
 // Search field style
 const Search = styled("div")(({ theme }) => ({
@@ -80,7 +81,7 @@ export default function Chat() {
 
   const createNewChat = async() => {
     try {
-        const response = await axios.get(`http://localhost:4000/users/${userId}/contacts`, {email: searchUserEmail}, {headers: {Authorization: `Bearer ${token}`}})
+        const response = await axios.get(`${server_url}users/${userId}/contacts`, {email: searchUserEmail}, {headers: {Authorization: `Bearer ${token}`}})
         console.log(response.data);
     } catch (error) {
       console.log("Failed to create new chat")
@@ -92,10 +93,10 @@ export default function Chat() {
     setToken(token)
     const fetchChats = async() => {
       try {
-        const contacts = await axios.get('http://localhost:4000/chats/contacts', {headers: {Authorization: `Bearer ${token}`}})
+        const contacts = await axios.get(`${server_url}chats/contacts`, {headers: {Authorization: `Bearer ${token}`}})
         // console.log(contacts.data)
         setContacts(contacts.data)
-        const response = await axios.get('http://localhost:4000/chats', {headers: {Authorization: `Bearer ${token}`}})
+        const response = await axios.get(`${server_url}chats`, {headers: {Authorization: `Bearer ${token}`}})
         console.log(response.data);
         setUserChats(response.data)
       } catch (error) {

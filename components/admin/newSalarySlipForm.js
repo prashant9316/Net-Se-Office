@@ -8,6 +8,7 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import axios from "axios";
 import { useRouter } from "next/router";
+import server_url from "api/server";
 
 export default function BasicForm() {
     const router = useRouter()
@@ -23,7 +24,7 @@ export default function BasicForm() {
     // createdBy: '6463f583cbd312033371b85a'
     try {
         console.log(formData)
-        const response = await axios.post('http://localhost:4000/salarySlips', formData);
+        const response = await axios.post(`${server_url}salarySlips`, formData);
   
         console.log('Salary Slip Generated:', response.data);
         router.push('/admin/salary-slip')

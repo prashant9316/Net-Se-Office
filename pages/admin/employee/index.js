@@ -37,6 +37,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import CloseIcon from '@mui/icons-material/Close'; 
 import axios from 'axios';
 import AdminProtection from "api/admin";
+import server_url from "api/server";
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
@@ -177,7 +178,7 @@ export default function MembersList() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/employees'); // Replace with your API endpoint
+        const response = await axios.get(`${server_url}employees`); // Replace with your API endpoint
         setData(response.data);
       } catch (error) {
         console.error('Failed to fetch data:', error);
@@ -205,7 +206,7 @@ export default function MembersList() {
       const id = event.target.id;
       console.log(id)
       try {
-        const response = await axios.delete(`http://localhost:4000/employees/${id}`)
+        const response = await axios.delete(`${server_url}employees/${id}`)
         console.log(response.data)
       } catch (error) {
         alert("Failed to delete employee: "+error)
@@ -246,7 +247,7 @@ export default function MembersList() {
     };
     try {
         console.log(formData)
-        const response = await axios.post('http://localhost:4000/employees', output);
+        const response = await axios.post(`${server_url}employees`, output);
   
         console.log('Employee added:', response.data);
         setUpdate(true);

@@ -23,6 +23,7 @@ import LastPageIcon from "@mui/icons-material/LastPage";
 import Tooltip from "@mui/material/Tooltip";
 import Checkbox from '@mui/material/Checkbox';
 import axios from "axios";
+import server_url from "api/server";
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
@@ -35,7 +36,7 @@ function BasicForm({rows, setTasks,setEmployee}) {
     };
     try {
         const token = localStorage.getItem('token')
-        const response = await axios.get(`http://localhost:4000/todos/${formData.empid}`, {headers: { Authorization: `Bearer ${token}`}})
+        const response = await axios.get(`${server_url}todos/${formData.empid}`, {headers: { Authorization: `Bearer ${token}`}})
         console.log(response.data)
         setTasks(response.data)
         setEmployee(formData.empid)
@@ -301,7 +302,7 @@ const MyTasks = () => {
     const fetchTasks = async() => {
         try {
             const token = localStorage.getItem('token')
-            const response = await axios.get('http://localhost:4000/todos', {headers: { Authorization: `Bearer ${token}` }})
+            const response = await axios.get(`${server_url}todos`, {headers: { Authorization: `Bearer ${token}` }})
             console.log(response.data)
             setTasks(response.data)
         } catch (error) {
@@ -320,7 +321,7 @@ const MyTasks = () => {
             completed: true
         }
         let token = localStorage.getItem('token')
-        const response = await axios.put(`http://localhost:4000/todos/${event.target.value}`, data, {headers: {Authorization: `Bearer ${token}`}})
+        const response = await axios.put(`${server_url}todos/${event.target.value}`, data, {headers: {Authorization: `Bearer ${token}`}})
         console.log(response.data)
         setUpdate(update + 1);
 
@@ -335,7 +336,7 @@ const MyTasks = () => {
     if(!sure) return;
     try {
         let token = localStorage.getItem('token')
-        const response = await axios.delete(`http://localhost:4000/todos/${event.target.value}`,{headers: {Authorization: `Bearer ${token}`}})
+        const response = await axios.delete(`${server_url}todos/${event.target.value}`,{headers: {Authorization: `Bearer ${token}`}})
         console.log(response.data)
         setUpdate(update + 1);
     } catch (error) {

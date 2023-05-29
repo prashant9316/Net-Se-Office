@@ -9,6 +9,7 @@ import { Box } from "@mui/system";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import axios from "axios";
+import server_url from "api/server";
 
 export default function BasicForm() {
     const [alert, setAlert] = React.useState([])
@@ -21,7 +22,7 @@ export default function BasicForm() {
         const token = localStorage.getItem('token')
         try {
             if(data){
-                const response = await axios.get(`http://localhost:4000/employee/${data}`, {headers: { Authorization: `Bearer ${token}`}})
+                const response = await axios.get(`${server_url}employee/${data}`, {headers: { Authorization: `Bearer ${token}`}})
                 setEmployee(response.data)
             } else {
                 setEmployee(null)
@@ -42,7 +43,7 @@ export default function BasicForm() {
     };
     try {
         const token = localStorage.getItem('token')
-        const response = await axios.post(`http://localhost:4000/todos`, formData, {headers: { Authorization: `Bearer ${token}`}})
+        const response = await axios.post(`${server_url}todos`, formData, {headers: { Authorization: `Bearer ${token}`}})
         event.target.reset()
         setAlert("Done!");
         // setTasks(response.data)

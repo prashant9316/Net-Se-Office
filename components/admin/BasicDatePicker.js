@@ -9,6 +9,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useUser } from 'hooks/User';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import server_url from 'api/server';
 
 export default function BasicDatePicker() {
   const router = useRouter()
@@ -27,7 +28,7 @@ export default function BasicDatePicker() {
       };
       console.log(formData);
       const token = localStorage.getItem('token')
-      const response = await axios.post('http://localhost:4000/attendance', formData, {headers: {
+      const response = await axios.post(`${server_url}attendance`, formData, {headers: {
         Authorization: `Bearer ${token}`,
       }, });
       console.log(response.data)

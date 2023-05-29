@@ -6,6 +6,7 @@ import Link from 'next/link';
 import styles from '@/styles/PageTitle.module.css';
 import axios from 'axios';
 import PrivateProtection from 'api/private';
+import server_url from 'api/server';
 
 export default function Testimonials() {
   const [notices, setNotices] = React.useState([])
@@ -13,7 +14,7 @@ export default function Testimonials() {
     const fetchNotices = async() => {
       try {
         const token = localStorage.getItem('token')
-        const response = await axios.get('http://localhost:4000/notices', {headers: {Authorization: `Bearer ${token}`}})
+        const response = await axios.get(`${server_url}notices`, {headers: {Authorization: `Bearer ${token}`}})
         console.log(response.data)
         setNotices(response.data)
       } catch (error) {

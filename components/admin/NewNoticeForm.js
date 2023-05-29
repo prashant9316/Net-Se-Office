@@ -8,6 +8,7 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import axios from "axios";
 import { useRouter } from "next/router";
+import server_url from "api/server";
 
 export default function BasicForm() {
     const router = useRouter()
@@ -21,7 +22,7 @@ export default function BasicForm() {
     };
     try {
         console.log(formData)
-        const response = await axios.post('http://localhost:4000/notices', formData);
+        const response = await axios.post(`${server_url}notices`, formData);
   
         console.log('Notices published:', response.data);
         router.push('/admin/notices')

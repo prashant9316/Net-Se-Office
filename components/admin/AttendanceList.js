@@ -19,6 +19,7 @@ import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import axios from "axios";
+import server_url from "./../../api/server"
 
 function TeamMembersLists(props) {
   const theme = useTheme();
@@ -147,7 +148,8 @@ export default function TeamMembersList() {
   React.useEffect(()=>{
     const fetchAttendance = async() => {
       try {
-        const response = await axios.get('http://localhost:4000/attendance');
+        console.log(server_url)
+        const response = await axios.get(`${server_url}attendance`);
         console.log(response.data);
         if(response.data){
           const data = response.data.sort((a, b) => (a.date < b.date ? -1 : 1));

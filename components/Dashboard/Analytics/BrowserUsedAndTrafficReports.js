@@ -22,6 +22,7 @@ import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import axios from "axios";
 import { useUser } from "hooks/User";
+import server_url from "api/server";
 
 function BrowserUsedAndTrafficReport(props) {
   const theme = useTheme();
@@ -163,7 +164,7 @@ const BrowserUsedAndTrafficReports = () => {
     const fetchAttendance = async(user) => {
       try {
         const token = localStorage.getItem('token')
-        const response = await axios.get(`http://localhost:4000/attendance/employee`, {headers: {Authorization: `bearer ${token}`}})
+        const response = await axios.get(`${server_url}/attendance/employee`, {headers: {Authorization: `bearer ${token}`}})
         console.log(response.data)
         const data = response.data.sort((a, b) => (a.date < b.date ? -1 : 1));
         setAttendance(data)

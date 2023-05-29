@@ -33,6 +33,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
+import server_url from "api/server";
 
 // Add Task Modal
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -297,7 +298,7 @@ const ToDoLists = () => {
     const fetchMyTasks = async() => {
       try {
         const token = localStorage.getItem('token')
-        const response = await axios.get('http://localhost:4000/todos/employee', {headers: {Authorization: `Bearer ${token}`}})
+        const response = await axios.get(`${server_url}todos/employee`, {headers: {Authorization: `Bearer ${token}`}})
         console.log(response.data)
         setTasks(response.data)
       } catch (error) {
