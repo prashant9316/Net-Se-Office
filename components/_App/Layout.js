@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import LeftSidebar from "@/components/_App/LeftSidebar";
-import AdminLeftSidebar from "@/components/_App/AdminLeftSidebar"
+import AdminLeftSidebar from "@/components/_App/AdminLeftSidebar";
 import TopNavbar from "@/components/_App/TopNavbar";
 import Footer from "@/components/_App/Footer";
 import ScrollToTop from "./ScrollToTop";
@@ -37,7 +37,7 @@ const Layout = ({ children }) => {
         ) && (
           <>
             <TopNavbar toogleActive={toogleActive} />
-            {isAdminPage? (<AdminLeftSidebar/>) : (<LeftSidebar />)}
+            {isAdminPage? (<AdminLeftSidebar toogleActive={toogleActive}/>) : (<LeftSidebar toogleActive={toogleActive} />)}
           </>
         )}
 
