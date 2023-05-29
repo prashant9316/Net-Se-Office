@@ -1,3 +1,3 @@
-const server_url='http://3.110.117.62:4000/'
+const server_url='https://net-se-office-backend.onrender.com/'
 
 export default server_url
