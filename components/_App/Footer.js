@@ -24,7 +24,7 @@ const Footer = () => {
               underline="none"
               rel="noreferrer"
             >
-              Prashant Mishra
+              Developers Infotech Pvt. Ltd.
             </Link>
           </Typography>
         </Box>
