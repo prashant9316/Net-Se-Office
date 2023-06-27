@@ -12,7 +12,7 @@ import server_url from "api/server";
 
 export default function BasicForm() {
     const router = useRouter()
-  const handleSubmit = async (event) => {
+    const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     let formData = {
@@ -22,7 +22,8 @@ export default function BasicForm() {
     };
     try {
         console.log(formData)
-        const response = await axios.post(`${server_url}notices`, formData);
+        const token = localStorage.getItem('token');
+        const response = await axios.post(`${server_url}notices`, formData, {headers: { Authorization: `Bearer ${token}`}});
   
         console.log('Notices published:', response.data);
         router.push('/admin/notices')

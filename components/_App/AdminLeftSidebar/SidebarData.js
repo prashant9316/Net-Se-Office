@@ -30,18 +30,14 @@ export const SidebarData = [
     icon: <LayersIcon />,
     iconClosed: <KeyboardArrowRightIcon />,
     iconOpened: <KeyboardArrowDownIcon />,
+  },
+  {
+    title: "Tasks",
+    path: "/admin/employee/task",
+    icon: <LayersIcon />,
+    iconClosed: <KeyboardArrowRightIcon />,
+    iconOpened: <KeyboardArrowDownIcon />,
 
-    subNav: [
-      {
-        title: "View All",
-        path: "/admin/employee",
-      },
-      {
-        title: "Tasks",
-        path: "/admin/employee/task",
-      }
-     
-    ],
   },
   {
     title: "Attendance",
@@ -49,6 +45,17 @@ export const SidebarData = [
     icon: <LayersIcon />,
     iconClosed: <KeyboardArrowRightIcon />,
     iconOpened: <KeyboardArrowDownIcon />,
+
+    subNav: [
+      {
+        title: 'List View (Alpha)',
+        path: '/admin/attendance'
+      },
+      {
+        title: 'Calendar View (Beta)',
+        path: '/admin/attendance/calendar'
+      }
+    ]
 
   },
   {

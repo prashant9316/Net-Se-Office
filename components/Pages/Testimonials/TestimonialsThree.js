@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Card from "@mui/material/Card";
 import { Typography } from "@mui/material";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -34,155 +34,16 @@ const Feedbacks = [
         icon: "ri-star-fill",
       }
     ]
-  },
-  {
-    id: 2,
-    feedbackText: "We look and sound so good! I am still in shock at how smooth this process was. The professionalism, collaboration and the design they come up is great.",
-    image: "/images/member2.png",
-    name: "Ramon",
-    designation: 'UI/UX Designer',
-    ratings: [
-      {
-        id: 1,
-        icon: "ri-star-fill",
-      },
-      {
-        id: 2,
-        icon: "ri-star-fill",
-      },
-      {
-        id: 3,
-        icon: "ri-star-fill",
-      },
-      {
-        id: 4,
-        icon: "ri-star-fill",
-      },
-      {
-        id: 5,
-        icon: "ri-star-fill",
-      }
-    ]
-  },
-  {
-    id: 3,
-    feedbackText: "We look and sound so good! I am still in shock at how smooth this process was. The professionalism, collaboration and the design they come up is great.",
-    image: "/images/member3.png",
-    name: "Nathaniel",
-    designation: 'Angular Developer',
-    ratings: [
-      {
-        id: 1,
-        icon: "ri-star-fill",
-      },
-      {
-        id: 2,
-        icon: "ri-star-fill",
-      },
-      {
-        id: 3,
-        icon: "ri-star-fill",
-      },
-      {
-        id: 4,
-        icon: "ri-star-fill",
-      },
-      {
-        id: 5,
-        icon: "ri-star-fill",
-      }
-    ]
-  },
-  {
-    id: 4,
-    feedbackText: "We look and sound so good! I am still in shock at how smooth this process was. The professionalism, collaboration and the design they come up is great.",
-    image: "/images/member4.png",
-    name: "Milton",
-    designation: 'React Developer',
-    ratings: [
-      {
-        id: 1,
-        icon: "ri-star-fill",
-      },
-      {
-        id: 2,
-        icon: "ri-star-fill",
-      },
-      {
-        id: 3,
-        icon: "ri-star-fill",
-      },
-      {
-        id: 4,
-        icon: "ri-star-fill",
-      },
-      {
-        id: 5,
-        icon: "ri-star-fill",
-      }
-    ]
-  },
-  {
-    id: 5,
-    feedbackText: "We look and sound so good! I am still in shock at how smooth this process was. The professionalism, collaboration and the design they come up is great.",
-    image: "/images/member5.png",
-    name: "Antonio",
-    designation: 'React Developer',
-    ratings: [
-      {
-        id: 1,
-        icon: "ri-star-fill",
-      },
-      {
-        id: 2,
-        icon: "ri-star-fill",
-      },
-      {
-        id: 3,
-        icon: "ri-star-fill",
-      },
-      {
-        id: 4,
-        icon: "ri-star-fill",
-      },
-      {
-        id: 5,
-        icon: "ri-star-fill",
-      }
-    ]
-  },
-  {
-    id: 6,
-    feedbackText: "We look and sound so good! I am still in shock at how smooth this process was. The professionalism, collaboration and the design they come up is great.",
-    image: "/images/member6.png",
-    name: "Julian",
-    designation: 'React Developer',
-    ratings: [
-      {
-        id: 1,
-        icon: "ri-star-fill",
-      },
-      {
-        id: 2,
-        icon: "ri-star-fill",
-      },
-      {
-        id: 3,
-        icon: "ri-star-fill",
-      },
-      {
-        id: 4,
-        icon: "ri-star-fill",
-      },
-      {
-        id: 5,
-        icon: "ri-star-fill",
-      }
-    ]
-  },
+  }
 ]
 
-const TestimonialsThree = () => {
+const TestimonialsThree = ({ notices }) => {
+  const [sortedNotices, setSortedNotices] = useState([])
+  useEffect(()=>{
+    // const sortedData = notices.sort((a, b) => b.createdAt - a.createdAt);
+    setSortedNotices(notices)
+    console.log(notices)
+  }, [])
   return (
     <>
       <Card
@@ -204,7 +65,7 @@ const TestimonialsThree = () => {
           }}
           className="for-dark-bottom-border"
         >
-          Testimonials Three
+          Notices
         </Typography>
 
         <Swiper
@@ -227,30 +88,26 @@ const TestimonialsThree = () => {
           modules={[Pagination]}
           className="testimonialStyle3"
         >
-          {Feedbacks.map((feedback) => (
-            <SwiperSlide key={feedback.id}>
+          {notices.map((notice) => (
+            <SwiperSlide key={notice._id}>
               <div className={styles.feedbackContent}>
                 <div className={styles.feedbackText}>
                   <div className={styles.feedbackImg}>
                     <div>
-                      <img src={feedback.image} alt="Client" />
+                      <img src={Feedbacks[0].image} alt="Client" />
                     </div>
 
                     <div>
-                      <h4>{feedback.name}</h4>
-                      <p>{feedback.designation}</p>
+                      <h4>{notice.title}</h4>
+                      <p>{notice.createdBy.username}</p>
                       <ul>
-                        {feedback.ratings.map((rating) => (
-                          <li key={rating.id}>
-                            <i className={rating.icon}></i>
-                          </li>
-                        ))}
+                      {new Date(notice.createdAt).toDateString()}
                       </ul>
                     </div>
                   </div>
 
                   <q>
-                    {feedback.feedbackText}
+                    {notice.content}
                   </q>
                 </div>
               </div>

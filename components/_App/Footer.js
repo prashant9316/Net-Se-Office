@@ -24,7 +24,7 @@ const Footer = () => {
               underline="none"
               rel="noreferrer"
             >
-              Developers Infotech Pvt. Ltd.
+              Developers Infotech Pvt.
             </Link>
           </Typography>
         </Box>

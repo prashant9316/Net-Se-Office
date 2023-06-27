@@ -83,18 +83,7 @@ export const SidebarData = [
     path: "/attendance",
     icon: <MailOutlineIcon />,
     iconClosed: <KeyboardArrowRightIcon />,
-    iconOpened: <KeyboardArrowDownIcon />,
-
-    subNav: [
-      {
-        title: "Mark Attendance",
-        path: "/attendance",
-      },
-      {
-        title: "View Attendance",
-        path: "/attendance/view",
-      },
-    ],
+    iconOpened: <KeyboardArrowDownIcon />
   },
   {
     title: "To Do List",

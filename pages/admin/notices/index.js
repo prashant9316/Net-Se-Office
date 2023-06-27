@@ -37,7 +37,9 @@ export default function Testimonials() {
         </ul>
       </div>
 
-      <TestimonialsOne notices={notices} />
+      {/* <TestimonialsOne notices={notices} /> */}
+
+      <TestimonialsThree notices={notices} />
       </AdminProtection>
     </>
   );

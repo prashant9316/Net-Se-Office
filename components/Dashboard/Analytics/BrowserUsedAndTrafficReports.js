@@ -164,7 +164,7 @@ const BrowserUsedAndTrafficReports = () => {
     const fetchAttendance = async(user) => {
       try {
         const token = localStorage.getItem('token')
-        const response = await axios.get(`${server_url}/attendance/employee`, {headers: {Authorization: `bearer ${token}`}})
+        const response = await axios.get(`${server_url}attendance/employee`, {headers: {Authorization: `bearer ${token}`}})
         console.log(response.data)
         const data = response.data.sort((a, b) => (a.date < b.date ? -1 : 1));
         setAttendance(data)

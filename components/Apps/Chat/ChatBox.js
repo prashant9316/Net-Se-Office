@@ -14,57 +14,19 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import SendIcon from "@mui/icons-material/Send";
 import { useEffect, useState } from "react";
-import io from "socket.io-client"
+import { useUser } from "hooks/User";
 
-let socket;
 
-const ChatBox = ({ chats }) => {
-  const [username, setUsername] = useState("");
+const ChatBox = ({ chatId, receiverID, chatMessages, socket }) => {
+  const {user} = useUser();
   const [messages, setMessages] = useState([]);
-  const [wsConnection, setWsConnection] = useState(null);
+  
+
+  
   useEffect(() => {
-    // socketInitializer()
-    setUsername("Prashant")
+    setMessages(chatMessages)
+  })
 
-    const socket = new WebSocket('ws://localhost:4000');
-    setWsConnection(socket);
-
-    socket.onopen = () => {
-      console.log('Websocket connected');
-    }
-
-    socket.onclose = () => {
-      console.log('WebSocket connection closed');
-    }
-
-    socket.onerror = (error) => {
-      console.log('WebSocket Error: ', error)
-    }
-    
-    socket.onmessage = (event) =>{
-      const rcvdData = event.data;
-      console.log("message received ")
-      console.log(rcvdData)
-    }
-
-    // return () => {
-    //   socket.close();
-    // };
-  }, [])
-
-  async function socketInitializer(){
-    await fetch("/api/socket");
-    socket = io();
-
-    socket.on('connect', () => {
-      console.log('connected')
-    })
-
-    socket.on("receive-message", (data) => {
-      console.log(data);
-
-    })
-  }
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -73,12 +35,10 @@ const ChatBox = ({ chats }) => {
       message: data.get("message")
     });
     const message = data.get("message")
-    if(wsConnection && wsConnection.readyState == WebSocket.OPEN){
+    if(socket && socket.readyState == WebSocket.OPEN){
       console.log("this is on")
-      wsConnection.send(JSON.stringify({ chatId: '12', message}))
+      socket.send(JSON.stringify({ type: 'send', chatId: chatId, message, receiver: receiverID}))
     }
-    // socket.emit("send-message", {username, message})
-
   };
 
   return (
@@ -118,7 +78,7 @@ const ChatBox = ({ chats }) => {
             />
             <Box className="ml-1">
               <Typography as="h5" fontWeight="500">
-                Laurent Perrier
+                {receiverID}
               </Typography>
               <Typography fontSize="12px" position="relative">
                 <span className="active-status2 successBgColor"></span> Active
@@ -156,422 +116,97 @@ const ChatBox = ({ chats }) => {
 
         {/* Chat List */}
         <div className="chat-list-box">
-          {/* Left Chat */}
-          <Box
-            sx={{
-              display: "flex",
-              maxWidth: "730px",
-              mb: "20px",
-            }}
-          >
-            <img
-              src="/images/user1.png"
-              alt="user"
-              width="35px"
-              height="35px"
-              className="borRadius100"
-            />
-            <Box
-              sx={{
-                display: "flex",
-              }}
-              className="ml-1"
-            >
-              <Box>
-                <Typography
+          {chatMessages.map((msg, idx) => {
+            if(msg.sender != chatId){
+              return(
+                <Box key={idx}
                   sx={{
-                    background: "#F5F6FA",
-                    borderRadius: "0px 15px 15px 15px",
-                    p: "14px 20px",
-                    mb: "10px",
-                  }}
-                  className="dark-BG-101010"
-                >
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Pharetra ligula non varius curabitur etiam malesuada. Congue
-                  eget luctus aliquet consectetur.
-                </Typography>
-
-                <Typography fontSize="12px">19:04</Typography>
-              </Box>
-
-              {/* Replay Dropdown */}
-              <Box className="ml-1">
-                <div className="right-replay-box">
-                  <IconButton size="small">
-                    <MoreVertIcon fontSize="small" />
-                  </IconButton>
-
-                  <div className="hover-caption">
-                    <List sx={{ display: "inline" }}>
-                      <ListItem disablePadding>
-                        <ListItemButton sx={{ padding: "1px 15px" }}>
-                          <ReplyIcon
-                            fontSize="small"
-                            sx={{ mt: "-4px" }}
-                            className="mr-5px"
-                          />
-                          <ListItemText
-                            primary="Reply"
-                            primaryTypographyProps={{ fontSize: "12px" }}
-                          />
-                        </ListItemButton>
-                      </ListItem>
-
-                      <ListItem disablePadding>
-                        <ListItemButton sx={{ padding: "1px 15px" }}>
-                          <DeleteOutlineIcon
-                            fontSize="small"
-                            sx={{ mt: "-4px" }}
-                            className="mr-5px"
-                          />
-                          <ListItemText
-                            primary="Delete"
-                            primaryTypographyProps={{ fontSize: "12px" }}
-                          />
-                        </ListItemButton>
-                      </ListItem>
-                    </List>
-                  </div>
-                </div>
-              </Box>
-            </Box>
-          </Box>
-
-          {/* Right Chat */}
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "end",
-              maxWidth: "730px",
-              mb: "20px",
-            }}
-            className="ml-auto"
-          >
-            <Box
-              sx={{
-                display: "flex",
-              }}
-              className="ml-1"
-            >
-              {/* Replay Dropdown */}
-              <Box>
-                <div className="left-replay-box">
-                  <IconButton size="small">
-                    <MoreVertIcon fontSize="small" />
-                  </IconButton>
-
-                  <div className="hover-caption">
-                    <List sx={{ display: "inline" }}>
-                      <ListItem disablePadding>
-                        <ListItemButton sx={{ padding: "1px 15px" }}>
-                          <ReplyIcon
-                            fontSize="small"
-                            sx={{ mt: "-4px" }}
-                            className="mr-5px"
-                          />
-                          <ListItemText
-                            primary="Reply"
-                            primaryTypographyProps={{ fontSize: "12px" }}
-                          />
-                        </ListItemButton>
-                      </ListItem>
-
-                      <ListItem disablePadding>
-                        <ListItemButton sx={{ padding: "1px 15px" }}>
-                          <DeleteOutlineIcon
-                            fontSize="small"
-                            sx={{ mt: "-4px" }}
-                            className="mr-5px"
-                          />
-                          <ListItemText
-                            primary="Delete"
-                            primaryTypographyProps={{ fontSize: "12px" }}
-                          />
-                        </ListItemButton>
-                      </ListItem>
-                    </List>
-                  </div>
-                </div>
-              </Box>
-
-              <Box className="mr-1">
-                <Typography
-                  sx={{
-                    background: "#757FEF",
-                    color: "#fff !important",
-                    borderRadius: "15px 0 15px 15px",
-                    p: "14px 20px",
-                    mb: "10px",
+                    display: "flex",
+                    maxWidth: "730px",
+                    mb: "20px",
                   }}
                 >
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                </Typography>
+                  <img
+                    src="/images/user1.png"
+                    alt="user"
+                    width="35px"
+                    height="35px"
+                    className="borRadius100"
+                  />
+                  <Box
+                    sx={{
+                      display: "flex",
+                    }}
+                    className="ml-1"
+                  >
+                    <Box>
+                      <Typography
+                        sx={{
+                          background: "#F5F6FA",
+                          borderRadius: "0px 15px 15px 15px",
+                          p: "14px 20px",
+                          mb: "10px",
+                        }}
+                        className="dark-BG-101010"
+                      >
+                        {msg.content}
+                      </Typography>
 
-                <Typography fontSize="12px" textAlign="end">
-                  19:04
-                </Typography>
-              </Box>
-            </Box>
-
-            <img
-              src="/images/user2.png"
-              alt="user"
-              width="35px"
-              height="35px"
-              className="borRadius100"
-            />
-          </Box>
-
-          {/* Left Chat */}
-          <Box
-            sx={{
-              display: "flex",
-              maxWidth: "730px",
-              mb: "20px",
-            }}
-          >
-            <img
-              src="/images/user1.png"
-              alt="user"
-              width="35px"
-              height="35px"
-              className="borRadius100"
-            />
-            <Box
-              sx={{
-                display: "flex",
-              }}
-              className="ml-1"
-            >
-              <Box>
-                <Typography
+                      <Typography fontSize="12px">
+                      {new Date(msg.timestamp).toLocaleDateString()} {new Date(msg.timestamp).toLocaleTimeString()}</Typography>
+                    </Box>
+                  </Box>
+                </Box>
+              )
+            } else {
+              return (
+                <Box key={idx}
                   sx={{
-                    background: "#F5F6FA",
-                    borderRadius: "0px 15px 15px 15px",
-                    p: "14px 20px",
-                    mb: "10px",
+                    display: "flex",
+                    justifyContent: "end",
+                    maxWidth: "730px",
+                    mb: "20px",
                   }}
-                  className="dark-BG-101010"
+                  className="ml-auto"
                 >
-                  Lorem ipsum dolor sit amet 🔥! Lorem ipsum dolor sit amet,
-                  consectetur adipiscing elit.
-                </Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                    }}
+                    className="ml-1"
+                  >
 
-                <Typography fontSize="12px">19:04</Typography>
-              </Box>
+                    <Box className="mr-1">
+                      <Typography
+                        sx={{
+                          background: "#757FEF",
+                          color: "#fff !important",
+                          borderRadius: "15px 0 15px 15px",
+                          p: "14px 20px",
+                          mb: "10px",
+                        }}
+                      >
+                        {msg.content}
+                      </Typography>
 
-              {/* Replay Dropdown */}
-              <Box className="ml-1">
-                <div className="right-replay-box">
-                  <IconButton size="small">
-                    <MoreVertIcon fontSize="small" />
-                  </IconButton>
+                      <Typography fontSize="12px" textAlign="end">
+                      {new Date(msg.timestamp).toLocaleDateString()} {new Date(msg.timestamp).toLocaleTimeString()}
+                      </Typography>
+                    </Box>
+                  </Box>
 
-                  <div className="hover-caption">
-                    <List sx={{ display: "inline" }}>
-                      <ListItem disablePadding>
-                        <ListItemButton sx={{ padding: "1px 15px" }}>
-                          <ReplyIcon
-                            fontSize="small"
-                            sx={{ mt: "-4px" }}
-                            className="mr-5px"
-                          />
-                          <ListItemText
-                            primary="Reply"
-                            primaryTypographyProps={{ fontSize: "12px" }}
-                          />
-                        </ListItemButton>
-                      </ListItem>
-
-                      <ListItem disablePadding>
-                        <ListItemButton sx={{ padding: "1px 15px" }}>
-                          <DeleteOutlineIcon
-                            fontSize="small"
-                            sx={{ mt: "-4px" }}
-                            className="mr-5px"
-                          />
-                          <ListItemText
-                            primary="Delete"
-                            primaryTypographyProps={{ fontSize: "12px" }}
-                          />
-                        </ListItemButton>
-                      </ListItem>
-                    </List>
-                  </div>
-                </div>
-              </Box>
-            </Box>
-          </Box>
-
-          {/* Right Chat */}
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "end",
-              maxWidth: "730px",
-              mb: "20px",
-            }}
-            className="ml-auto"
-          >
-            <Box
-              sx={{
-                display: "flex",
-              }}
-              className="ml-1"
-            >
-              {/* Replay Dropdown */}
-              <Box>
-                <div className="left-replay-box">
-                  <IconButton size="small">
-                    <MoreVertIcon fontSize="small" />
-                  </IconButton>
-
-                  <div className="hover-caption">
-                    <List sx={{ display: "inline" }}>
-                      <ListItem disablePadding>
-                        <ListItemButton sx={{ padding: "1px 15px" }}>
-                          <ReplyIcon
-                            fontSize="small"
-                            sx={{ mt: "-4px" }}
-                            className="mr-5px"
-                          />
-                          <ListItemText
-                            primary="Reply"
-                            primaryTypographyProps={{ fontSize: "12px" }}
-                          />
-                        </ListItemButton>
-                      </ListItem>
-
-                      <ListItem disablePadding>
-                        <ListItemButton sx={{ padding: "1px 15px" }}>
-                          <DeleteOutlineIcon
-                            fontSize="small"
-                            sx={{ mt: "-4px" }}
-                            className="mr-5px"
-                          />
-                          <ListItemText
-                            primary="Delete"
-                            primaryTypographyProps={{ fontSize: "12px" }}
-                          />
-                        </ListItemButton>
-                      </ListItem>
-                    </List>
-                  </div>
-                </div>
-              </Box>
-
-              <Box className="mr-1">
-                <Typography
-                  sx={{
-                    background: "#757FEF",
-                    color: "#fff !important",
-                    borderRadius: "15px 0 15px 15px",
-                    p: "14px 20px",
-                    mb: "10px",
-                  }}
-                >
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem
-                  ipsum dolor sit
-                </Typography>
-
-                <Typography fontSize="12px" textAlign="end">
-                  19:04
-                </Typography>
-              </Box>
-            </Box>
-
-            <img
-              src="/images/user2.png"
-              alt="user"
-              width="35px"
-              height="35px"
-              className="borRadius100"
-            />
-          </Box>
-
-          {/* Left Chat */}
-          <Box
-            sx={{
-              display: "flex",
-              maxWidth: "730px",
-              mb: "20px",
-            }}
-          >
-            <img
-              src="/images/user1.png"
-              alt="user"
-              width="35px"
-              height="35px"
-              className="borRadius100"
-            />
-            <Box
-              sx={{
-                display: "flex",
-              }}
-              className="ml-1"
-            >
-              <Box>
-                <Typography
-                  sx={{
-                    background: "#F5F6FA",
-                    borderRadius: "0px 15px 15px 15px",
-                    p: "14px 20px",
-                    mb: "10px",
-                  }}
-                  className="dark-BG-101010"
-                >
-                  Sed ut perspiciatis unde omnis iste natus error sit voluptatem
-                  accusantium doloremque laudantium, totam rem aperiam, eaque
-                  ipsa quae ab illo inventore veritatis et quasi architecto
-                  beatae vitae dicta sunt explicabo.
-                </Typography>
-
-                <Typography fontSize="12px">19:04</Typography>
-              </Box>
-
-              {/* Replay Dropdown */}
-              <Box className="ml-1">
-                <div className="right-replay-box">
-                  <IconButton size="small">
-                    <MoreVertIcon fontSize="small" />
-                  </IconButton>
-
-                  <div className="hover-caption">
-                    <List sx={{ display: "inline" }}>
-                      <ListItem disablePadding>
-                        <ListItemButton sx={{ padding: "1px 15px" }}>
-                          <ReplyIcon
-                            fontSize="small"
-                            sx={{ mt: "-4px" }}
-                            className="mr-5px"
-                          />
-                          <ListItemText
-                            primary="Reply"
-                            primaryTypographyProps={{ fontSize: "12px" }}
-                          />
-                        </ListItemButton>
-                      </ListItem>
-
-                      <ListItem disablePadding>
-                        <ListItemButton sx={{ padding: "1px 15px" }}>
-                          <DeleteOutlineIcon
-                            fontSize="small"
-                            sx={{ mt: "-4px" }}
-                            className="mr-5px"
-                          />
-                          <ListItemText
-                            primary="Delete"
-                            primaryTypographyProps={{ fontSize: "12px" }}
-                          />
-                        </ListItemButton>
-                      </ListItem>
-                    </List>
-                  </div>
-                </div>
-              </Box>
-            </Box>
-          </Box>
+                  <img
+                    src="/images/user2.png"
+                    alt="user"
+                    width="35px"
+                    height="35px"
+                    className="borRadius100"
+                  />
+                </Box>
+              )
+            }
+          })}
+          
         </div>
 
         {/* Footer */}

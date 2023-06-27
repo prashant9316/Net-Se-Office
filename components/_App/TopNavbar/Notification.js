@@ -10,9 +10,12 @@ import {
   Badge,
 } from "@mui/material";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
+import axios from "axios";
+import server_url from "api/server";
 
 const Notification = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [notifications, setNotifications] = React.useState([])
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -20,6 +23,22 @@ const Notification = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  React.useEffect(() =>{
+    const fetchNotifications = async() => {
+      const token = localStorage.getItem('token')
+      const response = await axios.get(`${server_url}notifications`, {headers: {Authorization: `Bearer ${token}`}})
+      console.log(response.data)
+      setNotifications(response.data)
+    }
+    try {
+      
+      fetchNotifications()
+    } catch (error) {
+      console.error(error)
+    }
+  }, [])
+  
   return (
     <>
       <Tooltip title="Notification">
@@ -86,71 +105,45 @@ const Notification = () => {
           <Button variant="text">clear all</Button>
         </div>
         <div className={styles.notification}>
-          <div className={styles.notificationList}>
-            <Typography
-              variant="h5"
-              sx={{
-                fontSize: "14px",
-                color: "#260944",
-                fontWeight: "500",
-                mb: 1,
-              }}
-            >
-              8 Invoices have been paid
-            </Typography>
+          {notifications&&notifications.map((noti, index) => {
+            return(
+              <div className={styles.notificationList} key={noti._id}>
+                <Link to={"/notices"}>
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      fontSize: "14px",
+                      color: "#260944",
+                      fontWeight: "500",
+                      mb: 1,
+                    }}
+                  >
+                    New {noti.type}
+                  </Typography>
 
-            <div className={styles.notificationListContent}>
-              <img src="/images/pdf-icon.png" alt="PDF Icon" width={27} />
-              <Typography
-                variant="h6"
-                sx={{
-                  fontSize: "13px",
-                  color: "#5B5B98",
-                  fontWeight: "500",
-                }}
-                className="ml-1"
-              >
-                Invoices have been paid to the company.
-              </Typography>
-            </div>
+                  <div className={styles.notificationListContent}>
+                    <img src="/images/pdf-icon.png" alt="PDF Icon" width={27} />
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "13px",
+                        color: "#5B5B98",
+                        fontWeight: "500",
+                      }}
+                      className="ml-1"
+                    >
+                      {noti.content}
+                    </Typography>
+                  </div>
+                </Link>
 
-            <Typography sx={{ fontSize: "12px", color: "#A9A9C8", mt: 1 }}>
-              11:47 PM Wednesday
-            </Typography>
-          </div>
-
-          <div className={styles.notificationList}>
-            <Typography
-              variant="h5"
-              sx={{
-                fontSize: "14px",
-                color: "#260944",
-                fontWeight: "500",
-                mb: 1,
-              }}
-            >
-              Create a new project for client
-            </Typography>
-
-            <div className={styles.notificationListContent}>
-              <img src="/images/man.png" alt="avatar Img" width={27} />
-              <Typography
-                variant="h6"
-                sx={{
-                  fontSize: "13px",
-                  color: "#5B5B98",
-                  fontWeight: "500",
-                }}
-                className="ml-1"
-              >
-                Allow users to like products in your WooCommerce
-              </Typography>
-            </div>
-
-            <Typography sx={{ fontSize: "12px", color: "#A9A9C8", mt: 1 }}>
-              2:00 PM Wednesday
-            </Typography>
-          </div>
+                <Typography sx={{ fontSize: "12px", color: "#A9A9C8", mt: 1 }}>
+                  {new Date(noti.timestamp).toDateString()}  {new Date(noti.timestamp).toLocaleTimeString()}
+                </Typography>
+              </div>
+            )
+          })}
+          
 
           <Typography component="div" textAlign="center">
             <Link

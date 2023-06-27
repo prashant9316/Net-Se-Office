@@ -59,44 +59,7 @@ export default function PrivacyPolicyContent() {
         </Typography> 
       </Box> 
 
-      <Box mb={2}>
-        <Typography component="h1" fontWeight="500" fontSize="15px" mb="5px">
-          Delete this account :
-        </Typography> 
-        
-        <Typography fontSize="13px">
-          Two-factor authentication is an enhanced security meansur. Once enabled, you'll be required to give two types of identification when you log into Google Authentication and SMS are Supported.
-        </Typography> 
-      </Box>
 
-      <Box mt={3}>
-        <Button 
-          variant="contained"
-          color="danger"
-          size="large"
-          sx={{
-            background: 'rgba(238, 54, 140, 0.1)',
-            borderRadius: '8px',
-            textTransform: 'capitalize',
-          }}
-          className="mr-15px"
-        >
-          close & delete this account
-        </Button>
-
-        <Button 
-          variant="contained"
-          color="danger"
-          size="large"
-          sx={{
-            background: 'rgba(117, 127, 239, 0.1)',
-            borderRadius: '8px',
-            textTransform: 'capitalize'
-          }}
-        >
-          Cancel
-        </Button>
-      </Box>
     </> 
   );
 }

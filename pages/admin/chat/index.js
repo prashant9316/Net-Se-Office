@@ -16,6 +16,8 @@ import ChatBoxThree from "@/components/Apps/Chat/ChatBoxThree";
 import axios from "axios";
 import server_url from "api/server";
 
+import { useUser } from "hooks/User";
+
 // Search field style
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -59,19 +61,74 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 
 export default function Chat() {
-  const [userId, setUserID] = useState('');
+  const [userId, setUserID] = useState(0);
   const [token, setToken] = useState('');
+  const [roomId, setRoomId] = useState('')
   const [searchUserEmail, setSearchUserEmail] = useState('')
   const [userChats, setUserChats] = useState([])
+  const [selectedChat, setSelectedChat] = useState(24)
+  const [wsConnection, setWsConnection] = useState(null);
+
+
+  const {user} = useUser();
 
   const createNewChat = async() => {
     try {
-        const response = await axios.get(`${server_url}/users/${userId}/contacts`, {email: searchUserEmail}, {headers: {Authorization: `Bearer ${token}`}})
+        const response = await axios.get(`${server_url}users/${userId}/contacts`, {email: searchUserEmail}, {headers: {Authorization: `Bearer ${token}`}})
         console.log(response.data);
     } catch (error) {
       console.log("Failed to create new chat")
     }
   }
+
+  const connectSocket = () => {
+    const socket = new WebSocket('ws://localhost:4000');
+    setWsConnection(socket);
+
+    socket.onopen = () => {
+      console.log('Websocket connected');
+      console.log("User Id set to WebSocket is:" + userId)
+      socket.send(JSON.stringify({ type: 'join', chatId: userId }))
+      
+    }
+
+    socket.onclose = () => {
+      console.log('WebSocket connection closed');
+
+      setTimeout(function() {
+        connectSocket();
+      }, 1000);
+    }
+
+    socket.onerror = (error) => {
+      console.log('WebSocket Error: ', error)
+    }
+    
+    socket.onmessage = (event) =>{
+      const rcvdData = event.data;
+      const msg = JSON.parse(rcvdData);
+      console.log("message received ")
+      console.log(rcvdData)
+      if(msg.roomId){
+        setRoomId(msg.roomId);
+      }
+      if(msg.type == 'send'){
+        const udpatedMessages = [...userChats, {sender: msg.chatId, content: msg.message, timestamp: new Date()}]
+        setUserChats(udpatedMessages)
+      }
+    }
+  }
+
+  const sampleChats = [
+    {
+      roomId: '36',
+      participants: ['6463f583cbd312033371b85a', '646de99834af6d3d38c4b6f9'],
+      messages: [
+        {sender: '6463f583cbd312033371b85a', content: 'Hello There', timestamp: '2023-05-18T18:30:00.000+00:00'},
+        {sender: '646de99834af6d3d38c4b6f9', content: "Hi, I'm still not finished with the project", timestamp: '2023-05-18T18:30:00.000+00:00'}
+      ]
+    },
+  ]
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -86,8 +143,14 @@ export default function Chat() {
         console.log("Failed to fetch chats")
       }
     }
-    fetchChats();
-  }, [])
+    // fetchChats();
+
+    console.log("User: ")
+    console.log(user)
+    setUserID(user.userId)
+    connectSocket();
+    setUserChats(sampleChats[0].messages)
+  }, [user])
   return (
     <>
       {/* Page title */}
@@ -211,479 +274,6 @@ export default function Chat() {
                     </Box>
                   </Box>
                 </Tab>
-
-                {/* Tab 2 */}
-                <Tab>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          position: "relative",
-                        }}
-                      >
-                        <img
-                          src="/images/user2.png"
-                          alt="User"
-                          width="45px"
-                          height="45px"
-                          className="borRadius100"
-                        />
-                        <span className="active-status successBgColor"></span>
-                      </Box>
-
-                      <Box className="ml-1">
-                        <Typography
-                          as="h4"
-                          fontSize="13px"
-                          fontWeight="500"
-                          mb="5px"
-                        >
-                          Nunez Faulkner
-                        </Typography>
-                        <Typography fontSize="12px">
-                          Hello everyone ...
-                        </Typography>
-                      </Box>
-                    </Box>
-
-                    <Box textAlign="right">
-                      <Typography
-                        sx={{
-                          color: "#A9A9C8",
-                          fontSize: "11px",
-                        }}
-                      >
-                        9.36 AM
-                      </Typography>
-
-                      <Box className="mr-10px">
-                        <Badge 
-                          badgeContent={1} 
-                          color="primary"
-                          className="for-dark-text-white"
-                        ></Badge>
-                      </Box>
-                    </Box>
-                  </Box>
-                </Tab>
-
-                {/* Tab 3 */}
-                <Tab>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          position: "relative",
-                        }}
-                      >
-                        <img
-                          src="/images/user3.png"
-                          alt="User"
-                          width="45px"
-                          height="45px"
-                          className="borRadius100"
-                        />
-                        <span className="active-status successBgColor"></span>
-                      </Box>
-
-                      <Box className="ml-1">
-                        <Typography
-                          as="h4"
-                          fontSize="13px"
-                          fontWeight="500"
-                          mb="5px"
-                        >
-                          Bernard Langley
-                        </Typography>
-                        <Typography fontSize="12px">
-                          That cool, go for it...
-                        </Typography>
-                      </Box>
-                    </Box>
-
-                    <Box textAlign="right">
-                      <Typography
-                        sx={{
-                          color: "#A9A9C8",
-                          fontSize: "11px",
-                        }}
-                      >
-                        7.18 PM
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Tab>
-
-                {/* Tab 4 */}
-                <Tab>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          position: "relative",
-                        }}
-                      >
-                        <img
-                          src="/images/user4.png"
-                          alt="User"
-                          width="45px"
-                          height="45px"
-                          className="borRadius100"
-                        />
-                        <span className="active-status successBgColor"></span>
-                      </Box>
-
-                      <Box className="ml-1">
-                        <Typography
-                          as="h4"
-                          fontSize="13px"
-                          fontWeight="500"
-                          mb="5px"
-                        >
-                          Edwards Mckenz
-                        </Typography>
-                        <Typography fontSize="12px">Great ! 🔥</Typography>
-                      </Box>
-                    </Box>
-
-                    <Box textAlign="right">
-                      <Typography
-                        sx={{
-                          color: "#A9A9C8",
-                          fontSize: "11px",
-                        }}
-                      >
-                        08:30 PM
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Tab>
-
-                {/* Tab 5 */}
-                <Tab>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          position: "relative",
-                        }}
-                      >
-                        <img
-                          src="/images/user5.png"
-                          alt="User"
-                          width="45px"
-                          height="45px"
-                          className="borRadius100"
-                        />
-                        <span className="active-status successBgColor"></span>
-                      </Box>
-
-                      <Box className="ml-1">
-                        <Typography
-                          as="h4"
-                          fontSize="13px"
-                          fontWeight="500"
-                          mb="5px"
-                        >
-                          Elsie Melendez
-                        </Typography>
-                        <Typography fontSize="12px">Typing...</Typography>
-                      </Box>
-                    </Box>
-
-                    <Box textAlign="right">
-                      <Typography
-                        sx={{
-                          color: "#A9A9C8",
-                          fontSize: "11px",
-                        }}
-                      >
-                        2:30 PM
-                      </Typography>
-
-                      <Box className="mr-10px">
-                        <Badge 
-                          badgeContent={5} 
-                          color="primary"
-                          className="for-dark-text-white"
-                        ></Badge>
-                      </Box>
-                    </Box>
-                  </Box>
-                </Tab>
-
-                {/* Tab 6 */}
-                <Tab>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          position: "relative",
-                        }}
-                      >
-                        <img
-                          src="/images/user6.png"
-                          alt="User"
-                          width="45px"
-                          height="45px"
-                          className="borRadius100"
-                        />
-                        <span className="active-status secondaryBgColor"></span>
-                      </Box>
-
-                      <Box className="ml-1">
-                        <Typography
-                          as="h4"
-                          fontSize="13px"
-                          fontWeight="500"
-                          mb="5px"
-                        >
-                          Mcleod Wagner
-                        </Typography>
-                        <Typography fontSize="12px">What are you...</Typography>
-                      </Box>
-                    </Box>
-
-                    <Box textAlign="right">
-                      <Typography
-                        sx={{
-                          color: "#A9A9C8",
-                          fontSize: "11px",
-                        }}
-                      >
-                        1:30 PM
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Tab>
-
-                {/* Tab 7 */}
-                <Tab>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          position: "relative",
-                        }}
-                      >
-                        <img
-                          src="/images/user7.png"
-                          alt="User"
-                          width="45px"
-                          height="45px"
-                          className="borRadius100"
-                        />
-                      </Box>
-
-                      <Box className="ml-1">
-                        <Typography
-                          as="h4"
-                          fontSize="13px"
-                          fontWeight="500"
-                          mb="5px"
-                        >
-                          Joseph Strickland
-                        </Typography>
-                        <Typography fontSize="12px">Hello Joseph!!</Typography>
-                      </Box>
-                    </Box>
-
-                    <Box textAlign="right">
-                      <Typography
-                        sx={{
-                          color: "#A9A9C8",
-                          fontSize: "11px",
-                        }}
-                      >
-                        7:30 PM
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Tab>
-
-                {/* Tab 8 */}
-                <Tab>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          position: "relative",
-                        }}
-                      >
-                        <img
-                          src="/images/user8.png"
-                          alt="User"
-                          width="45px"
-                          height="45px"
-                          className="borRadius100"
-                        />
-                      </Box>
-
-                      <Box className="ml-1">
-                        <Typography
-                          as="h4"
-                          fontSize="13px"
-                          fontWeight="500"
-                          mb="5px"
-                        >
-                          Joseph Strickland
-                        </Typography>
-                        <Typography fontSize="12px">How are you?</Typography>
-                      </Box>
-                    </Box>
-
-                    <Box textAlign="right">
-                      <Typography
-                        sx={{
-                          color: "#A9A9C8",
-                          fontSize: "11px",
-                        }}
-                      >
-                        5:30 PM
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Tab>
-
-                {/* Tab 9 */}
-                <Tab>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          position: "relative",
-                        }}
-                      >
-                        <img
-                          src="/images/user9.png"
-                          alt="User"
-                          width="45px"
-                          height="45px"
-                          className="borRadius100"
-                        />
-                      </Box>
-
-                      <Box className="ml-1">
-                        <Typography
-                          as="h4"
-                          fontSize="13px"
-                          fontWeight="500"
-                          mb="5px"
-                        >
-                          Silva Foster
-                        </Typography>
-                        <Typography fontSize="12px">Cool! 🔥</Typography>
-                      </Box>
-                    </Box>
-
-                    <Box textAlign="right">
-                      <Typography
-                        sx={{
-                          color: "#A9A9C8",
-                          fontSize: "11px",
-                        }}
-                      >
-                        8:30 PM
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Tab>
               </TabList>
             </Card>
           </Grid>
@@ -697,50 +287,13 @@ export default function Chat() {
                 borderRadius: "10px",
               }}
             >
-              <TabPanel>
+              <TabPanel 
+                height={'80vh'} 
+              >
                 {/* ChatBox */}
-                <ChatBox />
+                <ChatBox chatId={userId} receiverID={selectedChat} chatMessages={userChats} socket={wsConnection} roomId={roomId} />
               </TabPanel>
 
-              <TabPanel>
-                {/* ChatBox */}
-                <ChatBoxTwo />
-              </TabPanel>
-
-              <TabPanel>
-                {/* ChatBox */}
-                <ChatBoxThree />
-              </TabPanel>
-
-              <TabPanel>
-                {/* ChatBox */}
-                <ChatBox />
-              </TabPanel>
-
-              <TabPanel>
-                {/* ChatBox */}
-                <ChatBoxTwo />
-              </TabPanel>
-
-              <TabPanel>
-                {/* ChatBox */}
-                <ChatBoxThree />
-              </TabPanel>
-
-              <TabPanel>
-                {/* ChatBox */}
-                <ChatBox />
-              </TabPanel>
-
-              <TabPanel>
-                {/* ChatBox */}
-                <ChatBoxTwo />
-              </TabPanel>
-
-              <TabPanel>
-                {/* ChatBox */}
-                <ChatBoxThree />
-              </TabPanel>
             </Card>
           </Grid>
         </Grid>

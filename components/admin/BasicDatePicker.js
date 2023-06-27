@@ -1,11 +1,7 @@
 import * as React from 'react';
 import Card from "@mui/material/Card";
 import Button from "@mui/material/Button";
-import { Box, Typography } from "@mui/material";
-import TextField from '@mui/material/TextField';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { Box } from "@mui/material";
 import { useUser } from 'hooks/User';
 import axios from 'axios';
 import { useRouter } from 'next/router';
@@ -13,9 +9,14 @@ import server_url from 'api/server';
 
 export default function BasicDatePicker() {
   const router = useRouter()
+  const [today, setToday] = React.useState(null);
   const [value, setValue] = React.useState(null);
   const {user} = useUser();
 
+  React.useEffect(() => {
+    const date = new Date();
+    setToday(date.toDateString())
+  }, [])
   const handleSubmit = async(event)=>{
     try {
       event.preventDefault();
@@ -23,7 +24,7 @@ export default function BasicDatePicker() {
       console.log(user)
       let formData = {
         employee: user.userId,
-        date: value,
+        date: new Date(),
         status: "Present"
       };
       console.log(formData);
@@ -31,11 +32,15 @@ export default function BasicDatePicker() {
       const response = await axios.post(`${server_url}attendance`, formData, {headers: {
         Authorization: `Bearer ${token}`,
       }, });
+      if(response.status == 200){
+        alert("Attendance already marked for the day!")
+        return;
+      }
       console.log(response.data)
       router.push('/attendance/view')
     } catch (error) {
       console.log(error)
-      alert("Failed to mark attendance")
+      alert(error)
     }
   }
   return (
@@ -48,31 +53,8 @@ export default function BasicDatePicker() {
       }}
     >
       <Box component="form" noValidate onSubmit={handleSubmit}>
-      <Typography
-        as="h3"
-        sx={{
-          fontSize: 18,
-          fontWeight: 500,
-          mb: '10px'
-        }}
-      >
-        Select Date to Mark Attendance
-      </Typography>
-
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <DatePicker
-          value={value}
-          name="datepicker"
-          id="datepicker"
-          onChange={(newValue) => {
-            setValue(newValue);
-          }}
-          renderInput={(params) => <TextField {...params} />}
-        />
-      </LocalizationProvider>
       <Button
             type="submit"
-            fullWidth
             variant="contained"
             sx={{
               mt: 2,
@@ -84,7 +66,7 @@ export default function BasicDatePicker() {
               color: "#fff !important"
             }}
           >
-            Apply Attendance
+            Mark your attendance for ({today})
           </Button>
           </Box>
     </Card>
