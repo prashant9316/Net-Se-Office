@@ -7,10 +7,7 @@ import TextField from "@mui/material/TextField";
 import AddIcon from "@mui/icons-material/Add";
 import SendIcon from '@mui/icons-material/Send';
 
-import dynamic from 'next/dynamic'
-const RichTextEditor = dynamic(() => import('@mantine/rte'), {
-  ssr: false,
-})
+
 
 const CustomStyles = () => {
   const handleSubmit = (event) => {
@@ -111,15 +108,6 @@ const CustomStyles = () => {
                 Message
               </Typography>
               
-              <RichTextEditor
-                id="rte"
-                controls={[
-                  ['bold', 'italic', 'underline', 'link', 'image'],
-                  ['unorderedList', 'h1', 'h2', 'h3', 'h4'],
-                  ['sup', 'sub'],
-                  ['alignLeft', 'alignCenter', 'alignRight'],
-                ]}
-              />
             </Grid>
  
             <Grid item xs={12} textAlign="end">
