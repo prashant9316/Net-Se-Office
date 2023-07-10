@@ -8,7 +8,7 @@ import axios from 'axios';
 import server_url from 'api/server';
 
 export default function ChangePassword() {
-  const [passwordData, setPasswordData] = React.useState(['', '', ''])
+  const [error, setError] = React.useState([])
   const [oldPassword, setOldPassword] = React.useState('')
   const [newPassword, setNewPassword] = React.useState('')
   const [confirmPassword, setConfirmPassword] = React.useState('')
@@ -27,9 +27,33 @@ export default function ChangePassword() {
   const handleSubmit = async(event) => {
     event.preventDefault();
     try {
+      setError([])
+      if(newPassword !== confirmPassword){
+        setError([...error, "New Password and Re-entered new Password doesn't match!"])
+      }
+      if(newPassword.length == 0 || newPassword.trim().length == 0 || newPassword.length < 8){
+        setError([...error, "New Password Invalid, length must be more than 8."])
+      }
+      if(oldPassword.length == 0 || oldPassword.trim().length == 0){
+        console.log(oldPassword.trim())
+        setError([...error, "Invalid Old Password"])
+      }
+      if(error){
+        return;
+      }
       const token = localStorage.getItem('token')
-      const response = await axios.post(`${server_url}user-auth/password`, {headers: {Authorization: `Bearer ${token}`}})
+      const sentData = {
+        oldPassword, 
+        newPassword
+      }
+      const response = await axios.post(`${server_url}user-auth/change-password`, sentData , {headers: {Authorization: `Bearer ${token}`}})
       console.log(response.data)
+      if(response.status == 200){
+        alert("Password updated successfully!")
+        setOldPassword('')
+        setNewPassword('')
+        setConfirmPassword('')
+      }
     } catch (error) {
       alert("Failed to update Password!");
       console.error(error)
@@ -138,6 +162,20 @@ export default function ChangePassword() {
             </Grid>
   
           </Grid>
+
+          <ul>
+            {error&&error.length>0 &&
+              error.map((err, idx) => {
+                return (
+                  <li className='text-red-500' key={idx}>
+                    <div className='text-red-500'>
+                      {err}
+                    </div>
+                  </li>
+                )
+              })
+              }
+            </ul>
 
           <Button
             type="submit"

@@ -2,8 +2,17 @@ import Profile from "@/components/Settings/Account/Profile";
 import NavBar from "@/components/Settings/NavBar";
 import Card from "@mui/material/Card";
 import { Typography } from "@mui/material";
+import { useUser } from "hooks/User";
 
 export default function Account() {
+  const {user} = useUser();
+  if(!user){
+    return (
+      <>
+        Loading...
+      </>
+    )
+  }
   return (
     <>
       <Card

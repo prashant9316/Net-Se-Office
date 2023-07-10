@@ -12,8 +12,10 @@ import {
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import axios from "axios";
 import server_url from "api/server";
+import { useUser } from "hooks/User";
 
 const Notification = () => {
+  const {user} = useUser()
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [notifications, setNotifications] = React.useState([])
   const open = Boolean(anchorEl);
@@ -25,19 +27,22 @@ const Notification = () => {
   };
 
   React.useEffect(() =>{
-    const fetchNotifications = async() => {
-      const token = localStorage.getItem('token')
-      const response = await axios.get(`${server_url}notifications`, {headers: {Authorization: `Bearer ${token}`}})
-      console.log(response.data)
-      setNotifications(response.data)
+    if(user){
+      const fetchNotifications = async() => {
+        const token = localStorage.getItem('token')
+        const response = await axios.get(`${server_url}notifications`, {headers: {Authorization: `Bearer ${token}`}})
+        console.log(response.data)
+        setNotifications(response.data)
+      }
+      try {
+        
+        fetchNotifications()
+      } catch (error) {
+        console.log(error)
+      }
     }
-    try {
-      
-      fetchNotifications()
-    } catch (error) {
-      console.error(error)
-    }
-  }, [])
+    
+  }, [user])
   
   return (
     <>

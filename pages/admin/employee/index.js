@@ -178,7 +178,8 @@ export default function MembersList() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${server_url}employees`); // Replace with your API endpoint
+        const token = localStorage.getItem('token')
+        const response = await axios.get(`${server_url}employees`, {headers: {Authorization: `Bearer ${token}`}}); // Replace with your API endpoint
         setData(response.data);
       } catch (error) {
         console.error('Failed to fetch data:', error);

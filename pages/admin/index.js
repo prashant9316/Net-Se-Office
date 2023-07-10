@@ -12,8 +12,15 @@ import AllProjects from '@/components/Dashboard/ProjectManagement/AllProjects';
 import TeamMembers from '@/components/Dashboard/ProjectManagement/TeamMembers';
 import ActivityTimeline from '@/components/Dashboard/ProjectManagement/ActivityTimeline';
 import AdminProtection from 'api/admin';
+import { useUser } from 'hooks/User';
 
 export default function ProjectManagement() {
+  const {user} = useUser();
+  if(!user){
+    return (<>
+      Loading...
+    </>)
+  }
   return (
     <>
     <AdminProtection>

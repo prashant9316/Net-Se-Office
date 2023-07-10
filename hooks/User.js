@@ -60,7 +60,9 @@ export const UserProvider = ({ children }) => {
 
       setLoading(false);
     } catch (error) {
-      console.error('Failed to fetch user data:', error);
+      console.log("maa ka bhosda")
+      // console.error('Failed to fetch user data:', error);
+      setUser(null)
       setLoading(false);
     }
   };

@@ -18,6 +18,7 @@ import server_url from "api/server";
 
 import { useUser } from "hooks/User";
 
+let userData = {};
 // Search field style
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -61,16 +62,18 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 
 export default function Chat() {
-  const [userId, setUserID] = useState(0);
+  const { user } = useUser()
+  const [userId, setUserID] = useState();
   const [token, setToken] = useState('');
+  const [contacts, setContacts] = useState([]);
+  const [chatRooms, setChatRooms] = useState([]);
+  const [changeUp, setChangeUp] = useState(1);
   const [roomId, setRoomId] = useState('')
   const [searchUserEmail, setSearchUserEmail] = useState('')
   const [userChats, setUserChats] = useState([])
   const [selectedChat, setSelectedChat] = useState(24)
   const [wsConnection, setWsConnection] = useState(null);
 
-
-  const {user} = useUser();
 
   const createNewChat = async() => {
     try {
@@ -81,14 +84,31 @@ export default function Chat() {
     }
   }
 
-  const connectSocket = () => {
+  const fetchChatRooms = async() => {
+    try {
+      const response = await axios.get(`${server_url}chatrooms`, {headers: {Authorization: `Bearer ${token}`}})
+      setContacts(response.data.contacts)
+      setChatRooms(response.data.chatRooms)
+      userData = response.data;
+      return response.data;
+    } catch (error) {
+      console.log("Failed to fetch chat rooms!");
+      return {error: true, message: error}
+    }
+  }
+
+  const connectSocket = async() => {
     const socket = new WebSocket('ws://localhost:4000');
     setWsConnection(socket);
 
     socket.onopen = () => {
       console.log('Websocket connected');
-      console.log("User Id set to WebSocket is:" + userId)
-      socket.send(JSON.stringify({ type: 'join', chatId: userId }))
+      if(user.userId){
+        console.log("User Id set to WebSocket is:" + user.userId)
+        socket.send(JSON.stringify({ type: 'join', sender: user.userId }))
+      } else {
+        console.log("Invalid UserId");
+      }
       
     }
 
@@ -104,7 +124,7 @@ export default function Chat() {
       console.log('WebSocket Error: ', error)
     }
     
-    socket.onmessage = (event) =>{
+    socket.onmessage = async(event) =>{
       const rcvdData = event.data;
       const msg = JSON.parse(rcvdData);
       console.log("message received ")
@@ -115,6 +135,50 @@ export default function Chat() {
       if(msg.type == 'send'){
         const udpatedMessages = [...userChats, {sender: msg.chatId, content: msg.message, timestamp: new Date()}]
         setUserChats(udpatedMessages)
+      } else if(msg.type == 'chatrooms'){
+        userData = await fetchChatRooms();
+        console.log(userData);
+        let updateChatRooms = []
+        if(!userData.chatRooms){
+          console.log("chatroom is empty")
+          return;
+        }
+        for(let i = 0; i < userData.chatRooms.length; i++){
+          console.log(userData.chatRooms[i])
+          updateChatRooms.push({
+            chatRoomId: userData.chatRooms[i].roomId,
+            participants: userData.chatRooms[i].participants
+          })
+        }
+        console.log(updateChatRooms)
+        socket.send(JSON.stringify({type: "chatrooms", sender: user.userId, chatRooms: updateChatRooms }))
+      } else if(msg.type == 'chat'){
+        console.log("New message received!")
+        console.log("Printing existing chatRooms")
+        console.log(userData.chatRooms)
+        for(let i = 0; i < userData.chatRooms.length; i++){
+          if(userData.chatRooms[i].roomId == msg.chatId){
+            console.log("printing selected chat chatroom")
+            console.log(userData.chatRooms[i])
+            const newMessage = {sender: msg.sender, content: msg.message, timestamp: msg.timestamp };
+            console.log(newMessage)
+            userData.chatRooms[i].messages.push(newMessage)
+            console.log(typeof(userData.chatRooms[i].messages))
+            console.log(typeof(userData.chatRooms[i].messages[0]))
+            const existingMessages = userData.chatRooms[i].messages
+            console.log(existingMessages)
+            const newMessages = [...existingMessages, newMessage]
+            console.log(newMessages)
+            // let updatedChatMessages = [...userData.chatRooms[i].messages,newMessage ]
+            // console.log(updatedChatMessages)
+            userData.chatRooms[i].messages = newMessages
+            console.log("printing updated chatroom")
+            console.log(userData.chatRooms[i])
+          }
+        }
+        
+        setChatRooms(userData.chatRooms)
+        setChangeUp(changeUp+1)
       }
     }
   }
@@ -133,24 +197,34 @@ export default function Chat() {
   useEffect(() => {
     const token = localStorage.getItem('token')
     setToken(token)
-    const fetchChats = async() => {
-      try {
-        const response = await axios.get(`${server_url}chats`, {headers: {Authorization: `Bearer ${token}`}})
-        console.log(response.data);
-        setUserChats(response.data)
-      } catch (error) {
-        console.log(error)
-        console.log("Failed to fetch chats")
-      }
-    }
-    // fetchChats();
+    
 
-    console.log("User: ")
-    console.log(user)
-    setUserID(user.userId)
-    connectSocket();
-    setUserChats(sampleChats[0].messages)
+    if(user){
+      console.log("User: ")
+      console.log(user)
+      setUserID(user.userId)
+      connectSocket();
+      setUserChats(sampleChats[0].messages)
+    }
   }, [user])
+
+  useEffect(() => {
+    console.log("Now the contacts and chatrooms are updated")
+
+  }, [contacts, chatRooms])
+
+  useEffect(() => {
+    console.log("inside use effect of chatrooms")
+
+  }, [chatRooms])
+
+  useEffect(() => {
+    console.log("inside use effect of change up")
+  }, [changeUp])
+
+  if(!user){
+    return <div>Loading...</div>;
+  }
   return (
     <>
       {/* Page title */}
@@ -210,70 +284,75 @@ export default function Chat() {
               </Typography>
 
               <TabList>
-                {/* Tab 1 */}
-                <Tab>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
+                {contacts&&contacts.length>0&&contacts.map((contact, index) => {
+                  return (
+                    <Tab key={contact.chatRoomId}>
                       <Box
                         sx={{
-                          position: "relative",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
                         }}
                       >
-                        <img
-                          src="/images/user1.png"
-                          alt="User"
-                          width="45px"
-                          height="45px"
-                          className="borRadius100"
-                        />
-                        <span className="active-status successBgColor"></span>
-                      </Box>
-
-                      <Box className="ml-1">
-                        <Typography
-                          as="h4"
-                          fontSize="13px"
-                          fontWeight="500"
-                          mb="5px"
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                          }}
                         >
-                          Laurent Perrier
-                        </Typography>
-                        <Typography fontSize="12px">Typing...</Typography>
-                      </Box>
-                    </Box>
+                          <Box
+                            sx={{
+                              position: "relative",
+                            }}
+                          >
+                            <img
+                              src="/images/user1.png"
+                              alt="User"
+                              width="45px"
+                              height="45px"
+                              className="borRadius100"
+                            />
+                            <span className="active-status successBgColor"></span>
+                          </Box>
 
-                    <Box textAlign="right">
-                      <Typography
-                        sx={{
-                          color: "#A9A9C8",
-                          fontSize: "11px",
-                        }}
-                      >
-                        4:30 PM
-                      </Typography>
+                          <Box className="ml-1">
+                            <Typography
+                              as="h4"
+                              fontSize="13px"
+                              fontWeight="500"
+                              mb="5px"
+                            >
+                              {contact.chatRoomId}
+                            </Typography>
+                            <Typography fontSize="12px">status...</Typography>
+                          </Box>
+                        </Box>
 
-                      <Box className="mr-10px">
-                        <Badge 
-                          badgeContent={2} 
-                          color="primary" 
-                          className="for-dark-text-white"
-                        ></Badge>
+                        <Box textAlign="right">
+                          <Typography
+                            sx={{
+                              color: "#A9A9C8",
+                              fontSize: "11px",
+                            }}
+                          >
+                            last time of chat
+                          </Typography>
+
+                          <Box className="mr-10px">
+                            <Badge 
+                              badgeContent={2} 
+                              color="primary" 
+                              className="for-dark-text-white"
+                            ></Badge>
+                          </Box>
+                        </Box>
                       </Box>
-                    </Box>
-                  </Box>
-                </Tab>
+                    </Tab>
+
+                  )
+                })}
+                
               </TabList>
             </Card>
           </Grid>
@@ -287,12 +366,17 @@ export default function Chat() {
                 borderRadius: "10px",
               }}
             >
-              <TabPanel 
-                height={'80vh'} 
-              >
+              
                 {/* ChatBox */}
-                <ChatBox chatId={userId} receiverID={selectedChat} chatMessages={userChats} socket={wsConnection} roomId={roomId} />
-              </TabPanel>
+                {chatRooms&&chatRooms.length>0&&changeUp&&chatRooms.map((chatRoom, index) => {
+                  return (
+                    <TabPanel 
+                      height={'80vh'} 
+                    >
+                      <ChatBox key={chatRoom.chatRoomId} chatId={user.userId} participants={chatRoom.participants} chatMessages={chatRoom.messages} socket={wsConnection} roomId={chatRoom.roomId} toUpdate={changeUp} />
+                    </TabPanel>
+                  )
+                })}
 
             </Card>
           </Grid>

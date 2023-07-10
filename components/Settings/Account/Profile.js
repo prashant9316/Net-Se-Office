@@ -4,8 +4,20 @@ import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import server_url from 'api/server';
+import axios from 'axios';
 
 export default function Profile() {
+  const [userProfile, setUserProfile] = React.useState({})
+  React.useEffect(() => {
+    const fetchUserProfile = async() => {
+      const token = localStorage.getItem('token')
+      const response = await axios.get(`${server_url}my-profile`, {headers: {Authorization: `Bearer ${token}`}})
+      console.log(response.data)
+      setUserProfile(response.data)
+    }
+    fetchUserProfile()
+  })
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -15,6 +27,11 @@ export default function Profile() {
     });
   };
 
+  if(!userProfile){
+    return (
+      <>Loading...</>
+    )
+  }
   return (
     <>
       <Box>
@@ -29,9 +46,6 @@ export default function Profile() {
             Profile
           </Typography>
 
-          <Typography fontSize="13px">
-            Update your photo and personal details here.
-          </Typography>
         </Box>
 
         <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
@@ -46,14 +60,15 @@ export default function Profile() {
                   display: "block",
                 }}
               >
-                First Name
+                Full Name
               </Typography>
               <TextField
                 autoComplete="given-name"
-                name="firstName"
+                name="fullName"
                 fullWidth
-                id="firstName" 
+                id="fullName" 
                 autoFocus
+                value={userProfile.name}
               />
             </Grid>
 
@@ -67,14 +82,60 @@ export default function Profile() {
                   display: "block",
                 }}
               >
-                Last Name
+                User Name
               </Typography>
 
               <TextField
                 fullWidth
-                id="lastName"
-                name="lastName"
+                id="username"
+                name="userName"
                 autoComplete="family-name"
+                value={userProfile.username}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <Typography
+                component="label"
+                sx={{
+                  fontWeight: "500",
+                  fontSize: "14px",
+                  mb: "10px",
+                  display: "block",
+                }}
+              >
+                Position
+              </Typography>
+              <TextField
+                autoComplete="given-name"
+                name="position"
+                disabled
+                fullWidth
+                id="position" 
+                autoFocus
+                value={userProfile.position}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <Typography
+                component="label"
+                sx={{
+                  fontWeight: "500",
+                  fontSize: "14px",
+                  mb: "10px",
+                  display: "block",
+                }}
+              >
+                Contact No
+              </Typography>
+
+              <TextField
+                fullWidth
+                id="contact"
+                name="contact"
+                autoComplete="family-name"
+                value={userProfile.contactNo}
               />
             </Grid>
 
@@ -96,10 +157,11 @@ export default function Profile() {
                 id="email"
                 name="email"
                 autoComplete="email"
+                value={userProfile.email}
               />
             </Grid>
 
-            <Grid item xs={12}>
+            {/* <Grid item xs={12}>
               <Typography
                 component="label"
                 sx={{
@@ -130,9 +192,9 @@ export default function Profile() {
                   height="50px"
                 />
               </Box>
-            </Grid>
+            </Grid> */}
           </Grid>
-
+{/* 
           <Button
             type="submit"
             variant="contained"
@@ -147,7 +209,7 @@ export default function Profile() {
             }}
           >
             Update
-          </Button>
+          </Button> */}
         </Box>
       </Box> 
     </> 

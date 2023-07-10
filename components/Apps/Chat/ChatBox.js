@@ -17,15 +17,13 @@ import { useEffect, useState } from "react";
 import { useUser } from "hooks/User";
 
 
-const ChatBox = ({ chatId, receiverID, chatMessages, socket }) => {
-  const {user} = useUser();
-  const [messages, setMessages] = useState([]);
-  
-
-  
+const ChatBox = ({ chatId, participants, chatMessages, socket, roomId, changeUp }) => {
+  const [receiver, setReceiver] = useState('Loading...')
+  const [messages, setMessages] = useState([])
   useEffect(() => {
+    console.log("Message Changing!")
     setMessages(chatMessages)
-  })
+  }, [chatMessages, changeUp])
 
 
   const handleSubmit = (event) => {
@@ -37,9 +35,23 @@ const ChatBox = ({ chatId, receiverID, chatMessages, socket }) => {
     const message = data.get("message")
     if(socket && socket.readyState == WebSocket.OPEN){
       console.log("this is on")
-      socket.send(JSON.stringify({ type: 'send', chatId: chatId, message, receiver: receiverID}))
+      console.log("Printing data sent:")
+      console.log(chatId)
+      console.log(message)
+      console.log(roomId)
+      socket.send(JSON.stringify({ type: 'chat', sender: chatId, message, chatId: roomId }))
     }
   };
+
+  useState(() => {
+    if(participants){
+      for(let i = 0; i < participants.length; i++){
+        if(participants[i].employeeId != chatId){
+          setReceiver(participants[i].name)
+        }
+      }
+    }
+  }, [receiver])
 
   return (
     <>
@@ -71,14 +83,14 @@ const ChatBox = ({ chatId, receiverID, chatMessages, socket }) => {
           >
             <img
               src="/images/user1.png"
-              alt="user"
+              alt={changeUp}
               width="40px"
               height="40px"
-              className="borRadius100"
+              className="borRadius100" 
             />
             <Box className="ml-1">
               <Typography as="h5" fontWeight="500">
-                {receiverID}
+                {receiver}
               </Typography>
               <Typography fontSize="12px" position="relative">
                 <span className="active-status2 successBgColor"></span> Active
@@ -116,7 +128,7 @@ const ChatBox = ({ chatId, receiverID, chatMessages, socket }) => {
 
         {/* Chat List */}
         <div className="chat-list-box">
-          {chatMessages.map((msg, idx) => {
+          {messages.map((msg, idx) => {
             if(msg.sender != chatId){
               return(
                 <Box key={idx}
